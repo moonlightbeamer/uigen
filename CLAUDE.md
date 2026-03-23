@@ -62,8 +62,13 @@ UIGen is an AI-powered React component generator. Users describe components in a
 
 ### Database (Prisma + SQLite)
 
+Always reference `prisma/schema.prisma` to understand the structure of data stored in the database. 
 Models: `User`, `Project`. Projects store messages and file system state as serialized JSON strings. Run `npx prisma studio` to inspect data locally.
 
 ### Testing
 
 Tests live in `__tests__/` directories next to source files. Uses Vitest with jsdom. Coverage includes chat components, `FileSystemContext`, and `jsx-transformer`.
+
+## Code Style
+
+When writing or modifying code, add comments only on important, non-obvious logic. Do not comment self-evident code.
