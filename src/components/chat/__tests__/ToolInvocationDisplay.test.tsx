@@ -1,18 +1,18 @@
 import { describe, test, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { ToolInvocationDisplay, getToolDisplay } from "../ToolInvocationDisplay";
-import type { ToolInvocation } from "ai";
 
 function makeTool(
   toolName: string,
   args: Record<string, any>,
-  state: "call" | "result" = "call"
-): ToolInvocation {
-  const base = { toolCallId: "test-id", toolName, args };
-  if (state === "result") {
-    return { ...base, state: "result", result: "ok" } as ToolInvocation;
-  }
-  return { ...base, state: "call" } as ToolInvocation;
+  state: "input-available" | "output-available" = "input-available"
+) {
+  return {
+    type: `tool-${toolName}`,
+    toolCallId: "test-id",
+    input: args,
+    state,
+  };
 }
 
 describe("getToolDisplay", () => {
@@ -53,14 +53,14 @@ describe("getToolDisplay", () => {
 });
 
 describe("ToolInvocationDisplay", () => {
-  test("shows spinner when state is call", () => {
-    const tool = makeTool("str_replace_editor", { command: "create", path: "/App.jsx" }, "call");
+  test("shows spinner when state is input-available", () => {
+    const tool = makeTool("str_replace_editor", { command: "create", path: "/App.jsx" }, "input-available");
     const { container } = render(<ToolInvocationDisplay tool={tool} />);
     expect(container.querySelector(".animate-spin")).toBeTruthy();
   });
 
-  test("shows green dot when state is result", () => {
-    const tool = makeTool("str_replace_editor", { command: "create", path: "/App.jsx" }, "result");
+  test("shows green dot when state is output-available", () => {
+    const tool = makeTool("str_replace_editor", { command: "create", path: "/App.jsx" }, "output-available");
     const { container } = render(<ToolInvocationDisplay tool={tool} />);
     expect(container.querySelector(".bg-emerald-500")).toBeTruthy();
     expect(container.querySelector(".animate-spin")).toBeFalsy();

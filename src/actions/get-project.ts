@@ -21,10 +21,21 @@ export async function getProject(projectId: string) {
     throw new Error("Project not found");
   }
 
+  const rawMessages = JSON.parse(project.messages);
+  // Migrate old v4 messages (with content field) to v6 UIMessage format (parts-only)
+  const messages = rawMessages.map((msg: any) => {
+    if (msg.parts !== undefined) return msg;
+    return {
+      id: msg.id,
+      role: msg.role,
+      parts: msg.content ? [{ type: "text", text: msg.content }] : [],
+    };
+  });
+
   return {
     id: project.id,
     name: project.name,
-    messages: JSON.parse(project.messages),
+    messages,
     data: JSON.parse(project.data),
     createdAt: project.createdAt,
     updatedAt: project.updatedAt,

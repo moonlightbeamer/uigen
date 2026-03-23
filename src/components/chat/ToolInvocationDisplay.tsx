@@ -1,10 +1,17 @@
 "use client";
 
-import { ToolInvocation } from "ai";
 import { Loader2, FilePlus, FileEdit, Eye, FilePen, Trash2 } from "lucide-react";
 
+interface ToolPart {
+  type: string;
+  state: string;
+  input: Record<string, any>;
+  toolCallId: string;
+  toolName?: string;
+}
+
 interface ToolInvocationDisplayProps {
-  tool: ToolInvocation;
+  tool: ToolPart;
 }
 
 interface ToolDisplay {
@@ -16,12 +23,13 @@ function getFilename(path: string): string {
   return path.split("/").filter(Boolean).pop() ?? path;
 }
 
-export function getToolDisplay(tool: ToolInvocation): ToolDisplay {
-  const args = tool.args as Record<string, any>;
+export function getToolDisplay(tool: ToolPart): ToolDisplay {
+  const toolName = tool.toolName ?? tool.type.replace(/^tool-/, "");
+  const args = tool.input as Record<string, any>;
   const path: string = args?.path ?? "";
   const filename = getFilename(path);
 
-  if (tool.toolName === "str_replace_editor") {
+  if (toolName === "str_replace_editor") {
     switch (args?.command) {
       case "create":
         return { Icon: FilePlus, label: `Creating ${filename}` };
@@ -33,7 +41,7 @@ export function getToolDisplay(tool: ToolInvocation): ToolDisplay {
     }
   }
 
-  if (tool.toolName === "file_manager") {
+  if (toolName === "file_manager") {
     switch (args?.command) {
       case "rename": {
         const newFilename = getFilename(args?.new_path ?? "");
@@ -44,11 +52,11 @@ export function getToolDisplay(tool: ToolInvocation): ToolDisplay {
     }
   }
 
-  return { Icon: FileEdit, label: tool.toolName };
+  return { Icon: FileEdit, label: toolName };
 }
 
 export function ToolInvocationDisplay({ tool }: ToolInvocationDisplayProps) {
-  const isDone = tool.state === "result";
+  const isDone = tool.state === "output-available" || tool.state === "output-error";
   const { Icon, label } = getToolDisplay(tool);
 
   return (

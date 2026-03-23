@@ -5,19 +5,22 @@ import {
   useContext,
   ReactNode,
   useEffect,
+  useState,
+  useRef,
+  useMemo,
 } from "react";
 import { useChat as useAIChat } from "@ai-sdk/react";
-import { Message } from "ai";
+import { UIMessage, DefaultChatTransport } from "ai";
 import { useFileSystem } from "./file-system-context";
 import { setHasAnonWork } from "@/lib/anon-work-tracker";
 
 interface ChatContextProps {
   projectId?: string;
-  initialMessages?: Message[];
+  initialMessages?: UIMessage[];
 }
 
 interface ChatContextType {
-  messages: Message[];
+  messages: UIMessage[];
   input: string;
   handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
@@ -32,24 +35,43 @@ export function ChatProvider({
   initialMessages = [],
 }: ChatContextProps & { children: ReactNode }) {
   const { fileSystem, handleToolCall } = useFileSystem();
+  const filesRef = useRef(fileSystem);
+  useEffect(() => {
+    filesRef.current = fileSystem;
+  }, [fileSystem]);
 
-  const {
-    messages,
-    input,
-    handleInputChange,
-    handleSubmit,
-    status,
-  } = useAIChat({
-    api: "/api/chat",
-    initialMessages,
-    body: {
-      files: fileSystem.serialize(),
-      projectId,
-    },
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport({
+        api: "/api/chat",
+        body: () => ({
+          files: filesRef.current.serialize(),
+          projectId,
+        }),
+      }),
+    [projectId]
+  );
+
+  const { messages, sendMessage, status } = useAIChat({
+    messages: initialMessages,
+    transport,
     onToolCall: ({ toolCall }) => {
-      handleToolCall(toolCall);
+      handleToolCall({ toolName: toolCall.toolName, input: toolCall.input });
     },
   });
+
+  const [input, setInput] = useState("");
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(e.target.value);
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    sendMessage({ text: input });
+    setInput("");
+  };
 
   // Track anonymous work
   useEffect(() => {
