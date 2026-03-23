@@ -1,6 +1,9 @@
 {
   "permissions": {
-    "allow": ["mcp__playwright"],
+    "allow": [
+      "mcp__playwright",
+      "mcp__playwright__browser_click"
+    ],
     "deny": []
   }
 }
