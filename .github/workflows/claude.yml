@@ -29,18 +29,40 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-
+      
+      - name: Project Setup
+        run: |
+          npm run setup
+          npm run dev:daemon
+          
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
-          # This is an optional setting that allows Claude to read CI results on PRs
-          additional_permissions: |
-            actions: read
+          custom_instructions: |
+            The project is already set up with all dependencies installed. 
+            The server is already running at localhost:3000. Logs from it 
+            are being written to logs.txt. If needed, you can query the db 
+            with the 'sqlite3' cli. If needed, use the mcp__playwright 
+            set of tools to launch a browser and interact with the app.
 
-          # Optional: Give a custom prompt to Claude. If this is not specified, Claude will perform the instructions specified in the comment that tagged it.
+          mcp_config: |
+            {
+              "mcpServers": {
+                "playwright": {
+                  "command": "npx",
+                  "args": [
+                    "@playwright/mcp@latest",
+                    "--allowed-origins",
+                    "localhost:3000;cdn.tailwindcss.com;esm.sh"
+                  ] 
+                } 
+              } 
+            }
+
+          allowed_tools: "BASH(npm:*), BASH(sqlite3:*), mcp__playwright__browser_snapshot, mcp__playwright__browser_evaluate, mcp__playwright__browser_click, mcp__playwright__browser_type_launch, mcp__playwright__browser_navigate, mcp__playwright__browser_fill, mcp__playwright__browser_press, mcp__playwright__browser_wait_for_selector, mcp__playwright__browser_locator_click, mcp__playwright__browser_locator_fill, mcp__playwright__browser_locator_press, mcp__playwright__browser_locator_wait_for_selector, mcp__playwright__browser_locator_check, mcp__playwright__browser_locator_uncheck, mcp__playwright__browser_locator_select_option, mcp__playwright__browser_locator_hover, mcp__playwright__browser_locator_drag_to, mcp__playwright__browser_locator_scroll, mcp__playwright__browser_locator_focus, mcp__playwright__browser_locator_blur, mcp__playwright__browser_locator_press, mcp__playwright__browser_locator_type, mcp__playwright__browser_locator_fill, mcp__playwright__browser_locator_clear, mcp__playwright__browser_locator_click, mcp__playwright__browser_locator_dblclick, mcp__playwright__browser_locator_hover, mcp__playwright__browser_locator_drag_to, mcp__playwright__browser_locator_scroll, mcp__playwright__browser_locator_focus, mcp__playwright__browser_locator_blur, mcp__playwright__browser_locator_press, mcp__playwright__browser_locator_type, mcp__playwright__browser_locator_fill, mcp__playwright__browser_locator_clear, mcp__playwright__browser_locator_click, mcp__playwright__browser_locator_dblclick, mcp__playwright__browser_locator_hover, mcp__playwright__browser_locator_drag_to, mcp__playwright__browser_locator_scroll, mcp__playwright__browser_locator_focus, mcp__playwright__browser_locator_blur, mcp__playwright__browser_locator_press, mcp__playwright__browser_locator_type, mcp__playwright__browser_locator_fill, mcp__playwright__browser_locator_clear, mcp__playwright__browser_locator_click, mcp__playwright__browser_locator_dblclick, mcp__playwright__browser_locator_hover, mcp__playwright__browser_locator_drag_to, mcp__playwright__browser_locator_scroll, mcp__playwright__browser_locator_focus, mcp__playwright__browser_locator_blur, mcp__playwright__browser_locator_press, mcp__playwright__browser_locator_type, mcp__playwright__browser_locator_fill, mcp__playwright__browser_locator_clear, mcp__playwright__browser_locator_click, mcp__playwright__browser_locator_dblclick, mcp__playwright__browser_locator_hover, mcp__playwright__browser_locator_drag_to, mcp__playwright__browser_locator_scroll, mcp__playwright__browser_locator_focus, mcp__playwright__browser_locator_blur, mcp__playwright__browser_locator_press, mcp__playwright__browser_locator_type, mcp__playwright__browser_locator_fill, mcp__playwright__browser_locator_clear, mcp__playwright__browser_locator_click, mcp__playwright__browser_locator_dblclick, mcp__playwright__browser_locator_hover, mcp__playwright__browser_locator_drag_to, mcp__playwright__browser_locator_scroll, mcp__playwright__browser_locator_focus, mcp__playwright__browser_locator_blur, mcp__playwright__browser_locator_press, mcp__playwright__browser_locator_type, mcp__playwright__browser_locator_fill, mcp__playwright__browser_locator_clear, mcp__playwright__browser_locator_click, mcp__playwright__browser_locator_dblclick, mcp__playwright__browser_locator_hover, mcp__playwright__browser_locator_drag_to, mcp__playwright__browser_locator_scroll, mcp__playwright__browser_locator_focus, mcp__playwright__browser_locator_blur, mcp__playwright__browser_locator_press, mcp__playwright__browser_locator_type, mcp__playwright__browser_locator_fill, mcp__playwright__browser_locator_clear, mcp__playwright__browser_locator_click, mcp__playwright__browser_locator_dblclick, mcp__playwright__browser_locator_hover, mcp__playwright__browser_locator_drag_to, mcp__playwright__browser_locator_scroll, mcp__playwright__browser_locator_focus, mcp__playwright__browser_locator_blur, mcp__playwright__browser_locator_press, mcp__playwright__browser_locator_type, mcp__playwright__browser_locator_fill, mcp__playwright__browser_locator_clear, mcp__playwright__browser_locator_click, mcp__playwright__browser_locator_dblclick, mcp__playwright__browser_locator_hover, mcp__playwright__browser_locator_drag_to, mcp__playwright__browser_locator_scroll, mcp__playwright__browser_locator_focus, mcp__playwright__browser_locator_blur, mcp__playwright__browser_locator_press, mcp__playwright__browser_locator_type, mcp__playwright__browser_locator_fill, mcp__playwright__browser_locator_clear, mcp__playwright__browser_locator_click, mcp__playwright__browser_locator_dblclick, mcp__playwright__browser_locator_hover, mcp__playwright__browser_locator_drag_to, mcp__playwright__browser_locator_scroll, mcp__playwright__browser_locator_focus, mcp__playwright__browser_locator_blur, mcp__playwright__browser_locator_press, mcp__playwright__browser_locator_type, mcp__playwright__browser_locator_fill, mcp__playwright__browser_locator_clear, mcp__playwright__browser_locator_click, mcp__playwright__browser_locator_dblclick, mcp__playwright__browser_locator_hover, mcp__playwright__browser_locator_drag_to, mcp__playwright__browser_locator_scroll, mcp__playwright__browser_locator_focus, mcp__playwright__browser_locator_blur, mcp__playwright__browser_locator_press, mcp__playwright__browser_locator_type, mcp__playwright__browser_locator_fill, mcp__playwright__browser_locator_clear, mcp__playwright__browser_locator_click, mcp__playwright__browser_locator_dblclick, mcp__playwright__browser_locator_hover, mcp__playwright__browser_locator_drag_to, mcp__playwright__browser_locator_scroll, mcp__playwright__browser_locator_focus, mcp__playwright__browser_locator_blur, mcp__playwright__browser_locator_press, mcp__playwright__browser_locator_type, mcp__playwright__browser_locator_fill, mcp__playwright__browser_locator_clear, mcp__playwright__browser_locator_click, mcp__playwright__browser_locator_dblclick, mcp__playwright__browser_locator_hover, mcp__playwright__browser_locator_drag_to, mcp__playwright__browser_locator_scroll, mcp__playwright__browser_locator_focus, mcp__playwright__browser_locator_blur, mcp__playwright__browser_locator_press, mcp__playwright__browser_locator_type, mcp__playwright__browser_locator_fill, mcp__playwright__browser_locator_clear, mcp__playwright__browser_locator_click, mcp__playwright__browser_locator_dblclick, mcp__playwright__browser_locator_hover, mcp__playwright__browser_locator_drag_to, mcp__playwright__browser_locator_scroll, mcp__playwright__browser_locator_focus, mcp__playwright__browser_locator_blur, mcp__playwright__browser_locator_press, mcp__playwright__browser_locator_type"
           # prompt: 'Update the pull request description to include a summary of changes.'
 
           # Optional: Add claude_args to customize behavior and configuration
