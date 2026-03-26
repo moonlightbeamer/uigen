@@ -69,6 +69,10 @@ Models: `User`, `Project`. Projects store messages and file system state as seri
 
 Tests live in `__tests__/` directories next to source files. Uses Vitest with jsdom. Coverage includes chat components, `FileSystemContext`, and `jsx-transformer`.
 
+## Memory
+
+Always read `~/.claude/memory/MEMORY.md` at the start of each conversation and load any referenced memory files that are relevant to the task.
+
 ## Code Style
 
 When writing or modifying code, add comments only on important, non-obvious logic. Do not comment self-evident code.
